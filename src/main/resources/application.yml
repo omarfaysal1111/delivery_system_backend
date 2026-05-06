@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: delivery-system
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/delivery_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:change-me}
+            client-secret: ${GOOGLE_CLIENT_SECRET:change-me}
+            scope: email, profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+  cache:
+    type: redis
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:dGhpcy1pcy1hLXZlcnktc2VjdXJlLXNlY3JldC1rZXktZm9yLWRlbGl2ZXJ5LXN5c3RlbQ==}
+    access-token-expiry-ms: 900000       # 15 minutes
+    refresh-token-expiry-ms: 604800000   # 7 days
+
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:sk_test_change_me}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_change_me}
+
+  oauth2:
+    authorized-redirect-uris:
+      - http://localhost:3000/oauth2/redirect
+      - https://yourdomain.com/oauth2/redirect
+
+  driver:
+    default-search-radius-km: 5.0
+
+server:
+  port: 8080
