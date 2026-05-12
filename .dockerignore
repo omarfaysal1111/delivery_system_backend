@@ -1,0 +1,10 @@
+.gradle/
+build/
+.git/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+DeliveryPlatform/
+postman/
+docker-compose.yml
