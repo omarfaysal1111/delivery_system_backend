@@ -4,29 +4,23 @@ services:
     runtime: docker
     plan: free
     envVars:
-      # Injected automatically from the managed PostgreSQL database (internal URL — no SSL, same network)
-      - key: DATABASE_URL
-        fromDatabase:
-          name: delivery-db
-          property: internalConnectionString
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
       - key: DB_USERNAME
-        fromDatabase:
-          name: delivery-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: delivery-db
-          property: password
-      # Injected automatically from the managed Redis instance
+        sync: false
       - key: REDIS_URL
         fromService:
           type: redis
           name: delivery-redis
           property: connectionString
-      # Auto-generated secure random value
       - key: JWT_SECRET
         generateValue: true
-      # Set these manually in the Render dashboard after first deploy
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_WEBHOOK_SECRET
@@ -35,7 +29,6 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
-      # JVM heap limits for Render's free tier (512 MB RAM)
       - key: JAVA_OPTS
         value: "-Xmx400m -Xms200m"
 
@@ -43,8 +36,4 @@ services:
     name: delivery-redis
     plan: free
     maxmemoryPolicy: allkeys-lru
-
-databases:
-  - name: delivery-db
-    databaseName: delivery_db
-    plan: free
+    ipAllowList: []
