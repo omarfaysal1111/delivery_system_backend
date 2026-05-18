@@ -33,6 +33,9 @@ public class MenuItem {
 
     private String imageUrl;
 
+    @Column(precision = 10, scale = 2)
+    private BigDecimal originalPrice;
+
     @Builder.Default
     private boolean isAvailable = true;
 }

@@ -31,6 +31,23 @@ public class Restaurant {
 
     private String cuisineType;
 
+    private String coverImageUrl;
+
+    private String logoImageUrl;
+
+    @Column(length = 1000)
+    private String description;
+
+    private Integer deliveryTimeMin;
+
+    private Integer deliveryTimeMax;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal deliveryFee;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal minimumOrder;
+
     @Column(precision = 5, scale = 2)
     @Builder.Default
     private BigDecimal commissionPct = BigDecimal.valueOf(15);

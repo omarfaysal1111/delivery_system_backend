@@ -20,4 +20,11 @@ public class OrderStatusNotificationService {
                 Map.of("orderId", orderId.toString(), "status", status.name())
         );
     }
+
+    public void notifyDriverLocation(UUID orderId, double lat, double lng) {
+        messagingTemplate.convertAndSend(
+                "/topic/orders/" + orderId + "/driver-location",
+                Map.of("orderId", orderId.toString(), "lat", lat, "lng", lng)
+        );
+    }
 }

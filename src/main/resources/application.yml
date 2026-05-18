@@ -48,8 +48,18 @@ app:
       - http://localhost:3000/oauth2/redirect
       - https://yourdomain.com/oauth2/redirect
 
+  otp:
+    expiry-minutes: 5
+    hash-codes: false
+
+  uploads:
+    base-path: ./uploads
+
   driver:
     default-search-radius-km: 5.0
+
+  fcm:
+    enabled: false
 
 server:
   port: 8080

@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface BranchRepository extends JpaRepository<Branch, UUID> {
     List<Branch> findAllByRestaurantId(UUID restaurantId);
     List<Branch> findAllByRestaurantIdAndIsActiveTrue(UUID restaurantId);
+    java.util.Optional<Branch> findFirstByRestaurantIdAndIsActiveTrue(UUID restaurantId);
 }

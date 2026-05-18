@@ -45,8 +45,15 @@ public class SecurityConfig {
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/register",
                                 "/api/v1/auth/refresh",
-                                "/api/v1/payments/webhook",   // Stripe webhook — no JWT
-                                "/ws/**",                      // WebSocket handshake
+                                "/api/v1/auth/otp/send",
+                                "/api/v1/auth/otp/verify",
+                                "/api/v1/driver/register",
+                                "/api/v1/payments/webhook",
+                                "/api/v1/restaurants",
+                                "/api/v1/restaurants/**",
+                                "/api/v1/banners",
+                                "/api/v1/menus/**",
+                                "/ws/**",
                                 "/oauth2/**",
                                 "/login/oauth2/**"
                         ).permitAll()

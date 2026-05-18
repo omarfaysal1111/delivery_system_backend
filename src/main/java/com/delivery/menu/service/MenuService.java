@@ -7,6 +7,8 @@ import com.delivery.menu.dto.*;
 import com.delivery.menu.repository.ItemModifierRepository;
 import com.delivery.menu.repository.MenuCategoryRepository;
 import com.delivery.menu.repository.MenuItemRepository;
+import com.delivery.restaurant.repository.BranchRepository;
+import com.delivery.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -23,6 +25,7 @@ public class MenuService {
     private final MenuCategoryRepository categoryRepository;
     private final MenuItemRepository itemRepository;
     private final ItemModifierRepository modifierRepository;
+    private final BranchRepository branchRepository;
 
     @Cacheable(value = "menu", key = "#branchId")
     public List<MenuCategoryDto> getFullMenu(UUID branchId) {
@@ -84,6 +87,12 @@ public class MenuService {
         MenuItem saved = itemRepository.save(item);
         evictMenuCacheForCategory(saved.getCategoryId());
         return MenuItemDto.from(saved);
+    }
+
+    public List<MenuCategoryDto> getMenuByRestaurant(UUID restaurantId) {
+        var branch = branchRepository.findFirstByRestaurantIdAndIsActiveTrue(restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException("No active branch found for restaurant"));
+        return getFullMenu(branch.getId());
     }
 
     private void evictMenuCacheForCategory(UUID categoryId) {

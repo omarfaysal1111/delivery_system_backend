@@ -20,8 +20,21 @@ public class OrderDto {
     private BigDecimal subtotal;
     private BigDecimal deliveryFee;
     private BigDecimal total;
+    private BigDecimal discount;
     private List<OrderItemDto> items;
     private LocalDateTime createdAt;
+
+    private String restaurantName;
+    private String deliveryAddress;
+    private Double deliveryLat;
+    private Double deliveryLng;
+    private String paymentMethod;
+    private Integer estimatedMinutes;
+
+    private String driverName;
+    private String driverPhone;
+    private Double driverLat;
+    private Double driverLng;
 
     @Getter
     @Builder
@@ -44,6 +57,11 @@ public class OrderDto {
                 .id(o.getId()).customerId(o.getCustomerId()).branchId(o.getBranchId())
                 .status(o.getStatus()).subtotal(o.getSubtotal())
                 .deliveryFee(o.getDeliveryFee()).total(o.getTotal())
+                .discount(o.getDiscount())
+                .deliveryAddress(o.getDeliveryAddress())
+                .deliveryLat(o.getDeliveryLat())
+                .deliveryLng(o.getDeliveryLng())
+                .paymentMethod(o.getPaymentMethod())
                 .items(itemDtos).createdAt(o.getCreatedAt())
                 .build();
     }

@@ -4,6 +4,7 @@ import com.delivery.common.dto.PageResponse;
 import com.delivery.common.security.UserPrincipal;
 import com.delivery.review.domain.TargetType;
 import com.delivery.review.dto.CreateReviewRequest;
+import com.delivery.review.dto.OrderRatingRequest;
 import com.delivery.review.dto.ReviewDto;
 import com.delivery.review.service.ReviewService;
 import jakarta.validation.Valid;
@@ -51,3 +52,5 @@ public class ReviewController {
         return ResponseEntity.ok(Map.of("targetType", targetType, "targetId", targetId, "avgRating", avg));
     }
 }
+
+// Order rating endpoint lives under /api/v1/orders/{orderId}/rating — see OrderRatingController

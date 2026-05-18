@@ -2,6 +2,7 @@ package com.delivery.user.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.delivery.user.domain.DriverStatus;
 
 import java.util.UUID;
 
@@ -23,6 +24,12 @@ public class DriverProfile {
 
     private String vehicleType;
     private String licensePlate;
+    private String nationalId;
+    private String profilePhotoUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private DriverStatus status = DriverStatus.PENDING;
 
     @Builder.Default
     private Double avgRating = 0.0;
@@ -32,4 +39,8 @@ public class DriverProfile {
 
     private Double lastLat;
     private Double lastLng;
+
+    private String bankName;
+    private String bankAccountNumber;
+    private String bankAccountHolder;
 }

@@ -15,6 +15,7 @@ public class MenuItemDto {
     private String name;
     private String description;
     private BigDecimal price;
+    private BigDecimal originalPrice;
     private String imageUrl;
     private boolean isAvailable;
 
@@ -22,7 +23,8 @@ public class MenuItemDto {
         return MenuItemDto.builder()
                 .id(i.getId()).categoryId(i.getCategoryId())
                 .name(i.getName()).description(i.getDescription())
-                .price(i.getPrice()).imageUrl(i.getImageUrl())
+                .price(i.getPrice()).originalPrice(i.getOriginalPrice())
+                .imageUrl(i.getImageUrl())
                 .isAvailable(i.isAvailable())
                 .build();
     }

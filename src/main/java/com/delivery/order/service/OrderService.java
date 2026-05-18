@@ -1,7 +1,9 @@
 package com.delivery.order.service;
 
+import com.delivery.cart.repository.CartRepository;
 import com.delivery.common.dto.PageResponse;
 import com.delivery.common.exception.AuthException;
+import com.delivery.common.exception.ResourceNotFoundException;
 import com.delivery.menu.domain.MenuItem;
 import com.delivery.menu.repository.MenuItemRepository;
 import com.delivery.order.domain.Order;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,6 +27,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final MenuItemRepository menuItemRepository;
     private final OrderStatusNotificationService notificationService;
+    private final CartRepository cartRepository;
 
     @Transactional
     public OrderDto placeOrder(UUID customerId, PlaceOrderRequest req) {
@@ -33,14 +35,21 @@ public class OrderService {
                 .customerId(customerId)
                 .branchId(req.getBranchId())
                 .deliveryFee(req.getDeliveryFee())
+                .deliveryAddress(req.getDeliveryAddress())
+                .deliveryLat(req.getDeliveryLat())
+                .deliveryLng(req.getDeliveryLng())
+                .paymentMethod(req.getPaymentMethod())
+                .promoCode(req.getPromoCode())
+                .specialInstructions(req.getSpecialInstructions())
+                .discount(BigDecimal.ZERO)
                 .build();
 
         BigDecimal subtotal = BigDecimal.ZERO;
         for (var itemReq : req.getItems()) {
             MenuItem menuItem = menuItemRepository.findById(itemReq.getMenuItemId())
-                    .orElseThrow(() -> new RuntimeException("Menu item not found: " + itemReq.getMenuItemId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Menu item not found: " + itemReq.getMenuItemId()));
             if (!menuItem.isAvailable()) {
-                throw new RuntimeException("Item not available: " + menuItem.getName());
+                throw new ResourceNotFoundException("Item not available: " + menuItem.getName());
             }
             BigDecimal lineTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(itemReq.getQty()));
             subtotal = subtotal.add(lineTotal);
@@ -56,10 +65,15 @@ public class OrderService {
             order.getItems().add(oi);
         }
 
+        // TODO: validate promoCode against PromoCode table and apply discount
         order.setSubtotal(subtotal);
         order.setTotal(subtotal.add(req.getDeliveryFee()));
 
         Order saved = orderRepository.save(order);
+
+        // Clear cart after placing order
+        cartRepository.findByUserId(customerId).ifPresent(cartRepository::delete);
+
         return OrderDto.from(saved);
     }
 
@@ -70,7 +84,7 @@ public class OrderService {
             throw new AuthException("Not authorized to cancel this order");
         }
         if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.CONFIRMED) {
-            throw new RuntimeException("Order cannot be cancelled at current status: " + order.getStatus());
+            throw new ResourceNotFoundException("Order cannot be cancelled at current status: " + order.getStatus());
         }
         order.setStatus(OrderStatus.CANCELLED);
         Order saved = orderRepository.save(order);
@@ -107,8 +121,8 @@ public class OrderService {
                         .map(OrderDto::from));
     }
 
-    private Order findOrder(UUID id) {
+    public Order findOrder(UUID id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + id));
     }
 }

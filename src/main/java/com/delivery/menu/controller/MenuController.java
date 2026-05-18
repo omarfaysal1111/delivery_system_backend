@@ -25,6 +25,11 @@ public class MenuController {
         return ResponseEntity.ok(menuService.getFullMenu(branchId));
     }
 
+    @GetMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<List<MenuCategoryDto>> getMenuByRestaurant(@PathVariable UUID restaurantId) {
+        return ResponseEntity.ok(menuService.getMenuByRestaurant(restaurantId));
+    }
+
     @PostMapping("/categories")
     @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<MenuCategoryDto> createCategory(

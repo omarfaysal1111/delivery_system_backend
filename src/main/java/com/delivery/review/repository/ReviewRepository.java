@@ -15,4 +15,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.targetType = :targetType AND r.targetId = :targetId")
     Double avgRatingByTarget(TargetType targetType, UUID targetId);
+
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.targetType = :targetType AND r.targetId = :targetId")
+    Long countByTarget(TargetType targetType, UUID targetId);
 }

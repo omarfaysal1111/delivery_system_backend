@@ -94,4 +94,13 @@ public class DeliveryService {
             }
         });
     }
+
+    public java.util.Optional<Delivery> findActiveDeliveryForDriver(UUID driverId) {
+        return deliveryRepository.findByDriverIdAndStatusIn(driverId, java.util.List.of(
+                DeliveryStatus.ASSIGNED,
+                DeliveryStatus.EN_ROUTE_TO_RESTAURANT,
+                DeliveryStatus.PICKED_UP,
+                DeliveryStatus.EN_ROUTE_TO_CUSTOMER
+        )).stream().findFirst();
+    }
 }

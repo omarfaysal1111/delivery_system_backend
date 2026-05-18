@@ -4,8 +4,10 @@ import com.delivery.common.dto.PageResponse;
 import com.delivery.common.security.UserPrincipal;
 import com.delivery.order.domain.OrderStatus;
 import com.delivery.order.dto.OrderDto;
+import com.delivery.order.dto.OrderTrackingDto;
 import com.delivery.order.dto.PlaceOrderRequest;
 import com.delivery.order.service.OrderService;
+import com.delivery.order.service.OrderTrackingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderTrackingService orderTrackingService;
 
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -76,5 +79,10 @@ public class OrderController {
             @PathVariable UUID branchId,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(orderService.getBranchOrders(branchId, pageable));
+    }
+
+    @GetMapping("/{id}/tracking")
+    public ResponseEntity<OrderTrackingDto> tracking(@PathVariable UUID id) {
+        return ResponseEntity.ok(orderTrackingService.getTracking(id));
     }
 }

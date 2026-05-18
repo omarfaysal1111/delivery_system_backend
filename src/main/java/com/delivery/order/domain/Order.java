@@ -42,6 +42,17 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
+    private String deliveryAddress;
+    private Double deliveryLat;
+    private Double deliveryLng;
+    private String paymentMethod;
+    private String promoCode;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal discount;
+
+    private String specialInstructions;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
