@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "d6f1bcba-2fd7-4a2a-8787-1d552a37f64c",
     "name": "Delivery System API",
-    "description": "REST API for the delivery-system backend (Spring Boot).\n\nDefault server: `http://localhost:8080` (see `application.yml`).\n\n**Auth:** Register or Login sets `accessToken` and `refreshToken` via the Tests script. Other requests use Bearer `{{accessToken}}`.\n\n**Public (no JWT):** `/api/v1/auth/register`, `/login`, `/refresh`, `/api/v1/payments/webhook`. Google OAuth uses browser flow (`/oauth2/authorization/google`), not included as a simple REST call.\n\n**Roles:** Paths use Spring `@PreAuthorize` — use accounts with `CUSTOMER`, `DRIVER`, `RESTAURANT_OWNER`, or `ADMIN` as needed.",
+    "description": "REST API for the delivery-system backend (Spring Boot).\n\nDefault server: `http://localhost:8080`.\n\n**Auth:** Register or Login sets `accessToken` and `refreshToken` via the Tests script. All other requests use Bearer `{{accessToken}}`.\n\n**Roles:** `ROLE_CUSTOMER`, `ROLE_DRIVER`, `ROLE_RESTAURANT_OWNER`, `ROLE_ADMIN`.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "19583037"
   },
@@ -23,40 +23,24 @@
                   "    if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
                   "}"
                 ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
+                "type": "text/javascript"
               }
             }
           ],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"customer@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ROLE_CUSTOMER\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/register",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "register"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
             },
-            "description": "`role` must be `ROLE_CUSTOMER`, `ROLE_DRIVER`, or `ROLE_RESTAURANT_OWNER`."
+            "description": "`role`: ROLE_CUSTOMER | ROLE_DRIVER | ROLE_RESTAURANT_OWNER"
           },
           "response": []
         },
@@ -78,31 +62,17 @@
             }
           ],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "login"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
             }
           },
           "response": []
@@ -125,31 +95,17 @@
             }
           ],
           "request": {
-            "auth": {
-              "type": "noauth"
-            },
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/refresh",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "refresh"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "refresh"]
             }
           },
           "response": []
@@ -158,29 +114,212 @@
           "name": "Logout",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/auth/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "logout"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "OTP - Send",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+201012345678\",\n  \"role\": \"ROLE_CUSTOMER\"\n}"
             },
-            "description": "Requires a valid JWT (Bearer). Revokes the given refresh token."
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/send",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "otp", "send"]
+            },
+            "description": "Public. Generates a 6-digit OTP and logs it (SMS stub). `role`: ROLE_CUSTOMER | ROLE_DRIVER."
+          },
+          "response": []
+        },
+        {
+          "name": "OTP - Verify",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var j = pm.response.json();",
+                  "    if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "    if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+201012345678\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "otp", "verify"]
+            },
+            "description": "Public. Returns JWT tokens on success."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "profile"]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Omar Faysal\",\n  \"phone\": \"+201012345678\",\n  \"email\": \"omar@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "profile"]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "item": [
+        {
+          "name": "List addresses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "addresses"]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Create address",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"home\",\n  \"fullAddress\": \"123 Nile St, Cairo\",\n  \"lat\": 30.0444,\n  \"lng\": 31.2357,\n  \"city\": \"Cairo\",\n  \"neighborhood\": \"Zamalek\",\n  \"isDefault\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/addresses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "addresses"]
+            },
+            "description": "CUSTOMER only. `label`: home | work | other."
+          },
+          "response": []
+        },
+        {
+          "name": "Update address",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"work\",\n  \"fullAddress\": \"456 Tahrir Sq, Cairo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/addresses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "addresses", ":id"],
+              "variable": [{ "key": "id", "value": "{{addressId}}" }]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete address",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/addresses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "addresses", ":id"],
+              "variable": [{ "key": "id", "value": "{{addressId}}" }]
+            },
+            "description": "CUSTOMER only. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "Set default address",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/addresses/:id/default",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "addresses", ":id", "default"],
+              "variable": [{ "key": "id", "value": "{{addressId}}" }]
+            },
+            "description": "CUSTOMER only. Flips all others to isDefault=false."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Banners",
+      "item": [
+        {
+          "name": "Get active banners",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/banners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "banners"]
+            },
+            "description": "Public. Returns banners ordered by sortOrder."
           },
           "response": []
         }
@@ -192,64 +331,69 @@
         {
           "name": "List restaurants",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/restaurants?search=&page=0&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants"
-              ],
+              "raw": "{{baseUrl}}/api/v1/restaurants?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"],
               "query": [
-                {
-                  "key": "search",
-                  "value": "",
-                  "description": "Optional filter; omit or leave empty to list active restaurants."
-                },
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                },
-                {
-                  "key": "sort",
-                  "value": "",
-                  "disabled": true
-                }
+                { "key": "search", "value": "", "disabled": true, "description": "Name search" },
+                { "key": "cuisineType", "value": "", "disabled": true, "description": "e.g. شاورما" },
+                { "key": "minRating", "value": "", "disabled": true, "description": "e.g. 4.0" },
+                { "key": "maxDeliveryTime", "value": "", "disabled": true, "description": "minutes, e.g. 45" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
               ]
-            }
+            },
+            "description": "Public. Supports search, cuisineType, minRating, maxDeliveryTime filters."
+          },
+          "response": []
+        },
+        {
+          "name": "Most ordered (home discovery)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/most-ordered?size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "most-ordered"],
+              "query": [{ "key": "size", "value": "10" }]
+            },
+            "description": "Public. Top restaurants by order count."
+          },
+          "response": []
+        },
+        {
+          "name": "Top rated (home discovery)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/top-rated?size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "top-rated"],
+              "query": [{ "key": "size", "value": "10" }]
+            },
+            "description": "Public. Top restaurants by average review rating."
           },
           "response": []
         },
         {
           "name": "Get restaurant by id",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000001"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id"],
+              "variable": [{ "key": "id", "value": "{{restaurantId}}" }]
             }
           },
           "response": []
@@ -258,28 +402,17 @@
           "name": "Create restaurant",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Pizza Corner\",\n  \"slug\": \"pizza-corner\",\n  \"cuisineType\": \"Italian\",\n  \"commissionPct\": 12.5\n}"
+              "raw": "{\n  \"name\": \"Pizza Corner\",\n  \"slug\": \"pizza-corner\",\n  \"cuisineType\": \"بيتزا\",\n  \"commissionPct\": 12.5,\n  \"coverImageUrl\": \"https://example.com/cover.jpg\",\n  \"logoImageUrl\": \"https://example.com/logo.jpg\",\n  \"description\": \"Authentic Italian pizza\",\n  \"deliveryTimeMin\": 25,\n  \"deliveryTimeMax\": 40,\n  \"deliveryFee\": 5.00,\n  \"minimumOrder\": 20.00\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants"]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         },
@@ -290,50 +423,120 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/:id/toggle",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants",
-                ":id",
-                "toggle"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000001"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id", "toggle"],
+              "variable": [{ "key": "id", "value": "{{restaurantId}}" }]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Get menu by restaurant",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:restaurantId/menu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":restaurantId", "menu"],
+              "variable": [{ "key": "restaurantId", "value": "{{restaurantId}}" }]
+            },
+            "description": "Public. Picks the first active branch automatically."
+          },
+          "response": []
+        },
+        {
+          "name": "Get offers for restaurant",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id/offers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id", "offers"],
+              "variable": [{ "key": "id", "value": "{{restaurantId}}" }]
+            },
+            "description": "Public."
+          },
+          "response": []
+        },
+        {
+          "name": "Create offer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"خصم 20%\",\n  \"discountPercent\": 20,\n  \"minOrderAmount\": 50.00,\n  \"description\": \"Valid this weekend only\",\n  \"expiresAt\": \"2026-06-01T23:59:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id/offers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id", "offers"],
+              "variable": [{ "key": "id", "value": "{{restaurantId}}" }]
+            },
+            "description": "RESTAURANT_OWNER or ADMIN."
+          },
+          "response": []
+        },
+        {
+          "name": "Add to favorites",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id/favorite",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id", "favorite"],
+              "variable": [{ "key": "id", "value": "{{restaurantId}}" }]
+            },
+            "description": "CUSTOMER only. Returns { isFavorite: true }."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove from favorites",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/:id/favorite",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":id", "favorite"],
+              "variable": [{ "key": "id", "value": "{{restaurantId}}" }]
+            },
+            "description": "CUSTOMER only. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "My favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurants/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "favorites"]
+            },
+            "description": "CUSTOMER only."
           },
           "response": []
         },
         {
           "name": "List branches for restaurant",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/:restaurantId/branches",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants",
-                ":restaurantId",
-                "branches"
-              ],
-              "variable": [
-                {
-                  "key": "restaurantId",
-                  "value": "00000000-0000-0000-0000-000000000001"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", ":restaurantId", "branches"],
+              "variable": [{ "key": "restaurantId", "value": "{{restaurantId}}" }]
             }
           },
           "response": []
@@ -342,29 +545,17 @@
           "name": "Create branch",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"restaurantId\": \"00000000-0000-0000-0000-000000000001\",\n  \"address\": \"123 Main St\",\n  \"lat\": 40.7128,\n  \"lng\": -74.0060,\n  \"operatingHours\": {\n    \"mon\": \"09:00-21:00\"\n  }\n}"
+              "raw": "{\n  \"restaurantId\": \"{{restaurantId}}\",\n  \"address\": \"123 Main St, Cairo\",\n  \"lat\": 30.0444,\n  \"lng\": 31.2357,\n  \"operatingHours\": {\n    \"mon\": \"09:00-22:00\",\n    \"tue\": \"09:00-22:00\",\n    \"wed\": \"09:00-22:00\",\n    \"thu\": \"09:00-22:00\",\n    \"fri\": \"09:00-23:00\",\n    \"sat\": \"10:00-23:00\",\n    \"sun\": \"10:00-22:00\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/branches",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants",
-                "branches"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "branches"]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         },
@@ -372,37 +563,18 @@
           "name": "Update branch operating hours",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"mon\": \"10:00-22:00\",\n  \"tue\": \"10:00-22:00\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/restaurants/branches/:branchId/hours",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "restaurants",
-                "branches",
-                ":branchId",
-                "hours"
-              ],
-              "variable": [
-                {
-                  "key": "branchId",
-                  "value": "00000000-0000-0000-0000-000000000002"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "restaurants", "branches", ":branchId", "hours"],
+              "variable": [{ "key": "branchId", "value": "{{branchId}}" }]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`. Body is a generic map of hour fields."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         }
@@ -414,27 +586,31 @@
         {
           "name": "Get full menu for branch",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/menus/branch/:branchId",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "menus",
-                "branch",
-                ":branchId"
-              ],
-              "variable": [
-                {
-                  "key": "branchId",
-                  "value": "00000000-0000-0000-0000-000000000002"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menus", "branch", ":branchId"],
+              "variable": [{ "key": "branchId", "value": "{{branchId}}" }]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Get menu by restaurant",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/menus/restaurant/:restaurantId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menus", "restaurant", ":restaurantId"],
+              "variable": [{ "key": "restaurantId", "value": "{{restaurantId}}" }]
+            },
+            "description": "Public. Auto-selects the first active branch."
           },
           "response": []
         },
@@ -442,29 +618,17 @@
           "name": "Create menu category",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"branchId\": \"00000000-0000-0000-0000-000000000002\",\n  \"name\": \"Mains\",\n  \"sortOrder\": 1\n}"
+              "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"name\": \"المقبلات\",\n  \"sortOrder\": 1\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/menus/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "menus",
-                "categories"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menus", "categories"]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         },
@@ -472,29 +636,17 @@
           "name": "Create menu item",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"categoryId\": \"00000000-0000-0000-0000-000000000003\",\n  \"name\": \"Margherita\",\n  \"description\": \"Classic pizza\",\n  \"price\": 12.99,\n  \"imageUrl\": \"https://example.com/margherita.jpg\"\n}"
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"name\": \"شاورما دجاج\",\n  \"description\": \"شاورما دجاج مع صوص ثوم\",\n  \"price\": 45.00,\n  \"originalPrice\": 55.00,\n  \"imageUrl\": \"https://example.com/shawarma.jpg\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/menus/items",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "menus",
-                "items"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menus", "items"]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN. `originalPrice` optional (shows strikethrough)."
           },
           "response": []
         },
@@ -505,25 +657,11 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/menus/items/:itemId/toggle",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "menus",
-                "items",
-                ":itemId",
-                "toggle"
-              ],
-              "variable": [
-                {
-                  "key": "itemId",
-                  "value": "00000000-0000-0000-0000-000000000004"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menus", "items", ":itemId", "toggle"],
+              "variable": [{ "key": "itemId", "value": "{{menuItemId}}" }]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         },
@@ -533,32 +671,95 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/menus/items/:itemId/price?price=14.99",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "menus",
-                "items",
-                ":itemId",
-                "price"
-              ],
-              "query": [
-                {
-                  "key": "price",
-                  "value": "14.99"
-                }
-              ],
-              "variable": [
-                {
-                  "key": "itemId",
-                  "value": "00000000-0000-0000-0000-000000000004"
-                }
-              ]
+              "raw": "{{baseUrl}}/api/v1/menus/items/:itemId/price?price=49.99",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "menus", "items", ":itemId", "price"],
+              "query": [{ "key": "price", "value": "49.99" }],
+              "variable": [{ "key": "itemId", "value": "{{menuItemId}}" }]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "cart"]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Add item to cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"menuItemId\": \"{{menuItemId}}\",\n  \"quantity\": 2,\n  \"selectedModifiers\": [\n    { \"name\": \"Size\", \"value\": \"Large\", \"price\": 5.00 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/cart/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "cart", "items"]
+            },
+            "description": "CUSTOMER only. 409 if cart has items from a different restaurant."
+          },
+          "response": []
+        },
+        {
+          "name": "Update cart item quantity",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/cart/items/:itemId?quantity=3",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "cart", "items", ":itemId"],
+              "query": [{ "key": "quantity", "value": "3", "description": "Set to 0 to remove." }],
+              "variable": [{ "key": "itemId", "value": "{{cartItemId}}" }]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove cart item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/cart/items/:itemId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "cart", "items", ":itemId"],
+              "variable": [{ "key": "itemId", "value": "{{cartItemId}}" }]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Clear cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/user/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "user", "cart"]
+            },
+            "description": "CUSTOMER only. Returns 204."
           },
           "response": []
         }
@@ -571,28 +772,17 @@
           "name": "Place order",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"branchId\": \"00000000-0000-0000-0000-000000000002\",\n  \"deliveryFee\": 3.50,\n  \"items\": [\n    {\n      \"menuItemId\": \"00000000-0000-0000-0000-000000000004\",\n      \"qty\": 2,\n      \"modifiers\": []\n    }\n  ]\n}"
+              "raw": "{\n  \"branchId\": \"{{branchId}}\",\n  \"deliveryFee\": 5.00,\n  \"deliveryAddress\": \"123 Nile St, Zamalek, Cairo\",\n  \"deliveryLat\": 30.0444,\n  \"deliveryLng\": 31.2357,\n  \"paymentMethod\": \"cash\",\n  \"promoCode\": null,\n  \"specialInstructions\": \"No onions please\",\n  \"items\": [\n    {\n      \"menuItemId\": \"{{menuItemId}}\",\n      \"qty\": 2,\n      \"modifiers\": []\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders"]
             },
-            "description": "`CUSTOMER` only."
+            "description": "CUSTOMER only. Cart is cleared automatically after order is placed. `paymentMethod`: cash | card | wallet."
           },
           "response": []
         },
@@ -603,21 +793,9 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000010"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", ":id"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
             }
           },
           "response": []
@@ -629,23 +807,44 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders/:id/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id",
-                "status"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000010"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", ":id", "status"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
             }
+          },
+          "response": []
+        },
+        {
+          "name": "Get order tracking",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/:id/tracking",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", ":id", "tracking"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
+            },
+            "description": "Returns orderId, status, estimatedMinutes, driverName, driverPhone, driverLat, driverLng, timeline."
+          },
+          "response": []
+        },
+        {
+          "name": "Rate order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"restaurantRating\": 5,\n  \"driverRating\": 4,\n  \"comment\": \"Fast delivery, great food!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/orders/:orderId/rating",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", ":orderId", "rating"],
+              "variable": [{ "key": "orderId", "value": "{{orderId}}" }]
+            },
+            "description": "CUSTOMER only. Order must be DELIVERED. Creates restaurant + driver reviews in one call."
           },
           "response": []
         },
@@ -656,24 +855,11 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders/:id/cancel",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id",
-                "cancel"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000010"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", ":id", "cancel"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
             },
-            "description": "`CUSTOMER` only."
+            "description": "CUSTOMER only."
           },
           "response": []
         },
@@ -684,31 +870,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders/:id/status?status=CONFIRMED",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                ":id",
-                "status"
-              ],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "CONFIRMED",
-                  "description": "PENDING, CONFIRMED, PREPARING, READY_FOR_PICKUP, PICKED_UP, DELIVERED, CANCELLED"
-                }
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000010"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", ":id", "status"],
+              "query": [{ "key": "status", "value": "CONFIRMED", "description": "PENDING | CONFIRMED | PREPARING | READY_FOR_PICKUP | PICKED_UP | DELIVERED | CANCELLED" }],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         },
@@ -719,32 +886,11 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders/my?page=0&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                "my"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                },
-                {
-                  "key": "sort",
-                  "value": "",
-                  "disabled": true
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "my"],
+              "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }]
             },
-            "description": "`CUSTOMER` only."
+            "description": "CUSTOMER only."
           },
           "response": []
         },
@@ -755,34 +901,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/orders/branch/:branchId?page=0&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "orders",
-                "branch",
-                ":branchId"
-              ],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ],
-              "variable": [
-                {
-                  "key": "branchId",
-                  "value": "00000000-0000-0000-0000-000000000002"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "orders", "branch", ":branchId"],
+              "query": [{ "key": "page", "value": "0" }, { "key": "size", "value": "20" }],
+              "variable": [{ "key": "branchId", "value": "{{branchId}}" }]
             },
-            "description": "`RESTAURANT_OWNER` or `ADMIN`."
+            "description": "RESTAURANT_OWNER or ADMIN."
           },
           "response": []
         }
@@ -795,36 +919,18 @@
           "name": "Update delivery location",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"lat\": 40.713,\n  \"lng\": -74.007\n}"
+              "raw": "{\n  \"lat\": 30.045,\n  \"lng\": 31.237\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/deliveries/:id/locate",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "deliveries",
-                ":id",
-                "locate"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000020"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", ":id", "locate"],
+              "variable": [{ "key": "id", "value": "{{deliveryId}}" }]
             },
-            "description": "`DRIVER` only."
+            "description": "DRIVER only."
           },
           "response": []
         },
@@ -835,24 +941,11 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/deliveries/:id/pickup",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "deliveries",
-                ":id",
-                "pickup"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000020"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", ":id", "pickup"],
+              "variable": [{ "key": "id", "value": "{{deliveryId}}" }]
             },
-            "description": "`DRIVER` only. Returns 204 No Content."
+            "description": "DRIVER only. Returns 204."
           },
           "response": []
         },
@@ -863,24 +956,11 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/deliveries/:id/delivered",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "deliveries",
-                ":id",
-                "delivered"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "00000000-0000-0000-0000-000000000020"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", ":id", "delivered"],
+              "variable": [{ "key": "id", "value": "{{deliveryId}}" }]
             },
-            "description": "`DRIVER` only. Returns 204 No Content."
+            "description": "DRIVER only. Returns 204."
           },
           "response": []
         },
@@ -891,96 +971,401 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/api/v1/deliveries/online?online=true",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "deliveries",
-                "online"
-              ],
-              "query": [
-                {
-                  "key": "online",
-                  "value": "true"
-                }
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deliveries", "online"],
+              "query": [{ "key": "online", "value": "true" }]
             },
-            "description": "`DRIVER` only. Returns 204 No Content."
+            "description": "DRIVER only. Returns 204."
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Payments",
+      "name": "Driver App",
       "item": [
         {
-          "name": "Checkout (create payment intent)",
+          "name": "Register / Onboarding",
           "request": {
+            "auth": { "type": "noauth" },
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"orderId\": \"00000000-0000-0000-0000-000000000010\",\n  \"paymentMethodType\": \"card\"\n}"
+              "raw": "{\n  \"vehicleType\": \"motorcycle\",\n  \"vehicleNumber\": \"ABC-1234\",\n  \"nationalId\": \"29901010123456\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payments/checkout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "payments",
-                "checkout"
-              ]
+              "raw": "{{baseUrl}}/api/v1/driver/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "register"]
             },
-            "description": "`CUSTOMER` only. `paymentMethodType` is optional."
+            "description": "Called after OTP verify with a ROLE_DRIVER token. Creates/updates DriverProfile."
           },
           "response": []
         },
         {
-          "name": "Stripe webhook",
+          "name": "Get driver profile",
           "request": {
-            "auth": {
-              "type": "noauth"
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "profile"]
             },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Stripe-Signature",
-                "value": "{{stripeSignature}}",
-                "description": "Stripe signing secret validates this in production."
-              }
-            ],
+            "description": "DRIVER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update driver profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{}"
+              "raw": "{\n  \"vehicleType\": \"car\",\n  \"vehicleNumber\": \"XYZ-9999\",\n  \"profilePhotoUrl\": \"https://example.com/photo.jpg\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/payments/webhook",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "payments",
-                "webhook"
+              "raw": "{{baseUrl}}/api/v1/driver/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "profile"]
+            },
+            "description": "DRIVER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Set online status",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_online\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "status"]
+            },
+            "description": "DRIVER only. Returns { is_online: true/false }."
+          },
+          "response": []
+        },
+        {
+          "name": "Today stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/stats/today",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "stats", "today"]
+            },
+            "description": "DRIVER only. Returns totalTripsToday, totalEarningsToday, hoursOnline, acceptanceRate, completionRate."
+          },
+          "response": []
+        },
+        {
+          "name": "List available shifts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/shifts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "shifts"]
+            },
+            "description": "DRIVER only. Returns future shifts with bookedCount and isBookedByMe."
+          },
+          "response": []
+        },
+        {
+          "name": "Book shift",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/shifts/:shiftId/book",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "shifts", ":shiftId", "book"],
+              "variable": [{ "key": "shiftId", "value": "{{shiftId}}" }]
+            },
+            "description": "DRIVER only. 409 if already booked or shift is full."
+          },
+          "response": []
+        },
+        {
+          "name": "Get active order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/orders/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "orders", "active"]
+            },
+            "description": "DRIVER only. Returns the currently assigned delivery order."
+          },
+          "response": []
+        },
+        {
+          "name": "Accept order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/orders/:id/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "orders", ":id", "accept"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
+            },
+            "description": "DRIVER only. Sets status to EN_ROUTE_TO_RESTAURANT."
+          },
+          "response": []
+        },
+        {
+          "name": "Decline order",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/orders/:id/decline",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "orders", ":id", "decline"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
+            },
+            "description": "DRIVER only. Removes driver assignment and re-queues the order. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "Arrived at restaurant",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/orders/:id/arrived",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "orders", ":id", "arrived"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
+            },
+            "description": "DRIVER only. Sets order to READY_FOR_PICKUP. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm delivery",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "photo", "type": "file", "src": "", "description": "Optional proof-of-delivery photo" }
               ]
             },
-            "description": "No JWT. Must send a real Stripe event payload and valid `Stripe-Signature` for production use."
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/orders/:id/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "orders", ":id", "confirm"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
+            },
+            "description": "DRIVER only. Marks DELIVERED, saves photo, creates DriverEarnings record. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "Report issue",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"customer_absent\",\n  \"description\": \"Customer did not answer the door after 3 attempts\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/orders/:id/issue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "orders", ":id", "issue"],
+              "variable": [{ "key": "id", "value": "{{orderId}}" }]
+            },
+            "description": "DRIVER only. Sets order to CANCELLED. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "Update location",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 30.046,\n  \"lng\": 31.238\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/location",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "location"]
+            },
+            "description": "DRIVER only. Updates Redis geo and pushes WebSocket event to /topic/orders/{orderId}/driver-location."
+          },
+          "response": []
+        },
+        {
+          "name": "Earnings summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/earnings?period=today",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "earnings"],
+              "query": [{ "key": "period", "value": "today", "description": "today | week | month" }]
+            },
+            "description": "DRIVER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Earnings history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/earnings/history?from=2026-05-01T00:00:00&to=2026-05-31T23:59:59",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "earnings", "history"],
+              "query": [
+                { "key": "from", "value": "2026-05-01T00:00:00", "description": "ISO datetime" },
+                { "key": "to", "value": "2026-05-31T23:59:59" }
+              ]
+            },
+            "description": "DRIVER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Incentives",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/incentives",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "incentives"]
+            },
+            "description": "DRIVER only. Returns active incentives with completedTrips and isCompleted."
+          },
+          "response": []
+        },
+        {
+          "name": "Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/performance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "performance"]
+            },
+            "description": "DRIVER only. Returns acceptanceRate, completionRate, averageRating, onTimeRate, weeklyTrend."
+          },
+          "response": []
+        },
+        {
+          "name": "Request withdrawal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/earnings/withdraw",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "earnings", "withdraw"]
+            },
+            "description": "DRIVER only. Stub — logs request. Returns 204."
+          },
+          "response": []
+        },
+        {
+          "name": "List documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "documents"]
+            },
+            "description": "DRIVER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Upload document",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "type", "value": "national_id", "type": "text", "description": "national_id | driving_license | vehicle_registration | vehicle_photo" },
+                { "key": "file", "type": "file", "src": "" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "documents"]
+            },
+            "description": "DRIVER only. Saves file to uploads/documents/{driverId}/. Status starts as 'pending'."
+          },
+          "response": []
+        },
+        {
+          "name": "Surge zones",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/zones",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "zones"]
+            },
+            "description": "DRIVER only. Returns 3 hardcoded demo surge zones with polygon + multiplier."
+          },
+          "response": []
+        },
+        {
+          "name": "Get payout details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/payout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "payout"]
+            },
+            "description": "DRIVER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update payout details",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bankName\": \"CIB\",\n  \"accountNumber\": \"1234567890123\",\n  \"accountHolder\": \"Omar Faysal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/driver/payout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "driver", "payout"]
+            },
+            "description": "DRIVER only."
           },
           "response": []
         }
@@ -993,28 +1378,17 @@
           "name": "Create review",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"targetType\": \"RESTAURANT\",\n  \"targetId\": \"00000000-0000-0000-0000-000000000001\",\n  \"rating\": 5,\n  \"comment\": \"Great food!\"\n}"
+              "raw": "{\n  \"targetType\": \"RESTAURANT\",\n  \"targetId\": \"{{restaurantId}}\",\n  \"rating\": 5,\n  \"comment\": \"Great food!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v1/reviews",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "reviews"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews"]
             },
-            "description": "`CUSTOMER` only. `targetType`: RESTAURANT | DRIVER."
+            "description": "CUSTOMER only. `targetType`: RESTAURANT | DRIVER."
           },
           "response": []
         },
@@ -1024,32 +1398,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reviews?targetType=RESTAURANT&targetId=00000000-0000-0000-0000-000000000001&page=0&size=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "reviews"
-              ],
+              "raw": "{{baseUrl}}/api/v1/reviews?targetType=RESTAURANT&targetId={{restaurantId}}&page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews"],
               "query": [
-                {
-                  "key": "targetType",
-                  "value": "RESTAURANT"
-                },
-                {
-                  "key": "targetId",
-                  "value": "00000000-0000-0000-0000-000000000001"
-                },
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
+                { "key": "targetType", "value": "RESTAURANT" },
+                { "key": "targetId", "value": "{{restaurantId}}" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
               ]
             }
           },
@@ -1061,25 +1417,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/reviews/rating?targetType=RESTAURANT&targetId=00000000-0000-0000-0000-000000000001",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "reviews",
-                "rating"
-              ],
+              "raw": "{{baseUrl}}/api/v1/reviews/rating?targetType=RESTAURANT&targetId={{restaurantId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reviews", "rating"],
               "query": [
-                {
-                  "key": "targetType",
-                  "value": "RESTAURANT"
-                },
-                {
-                  "key": "targetId",
-                  "value": "00000000-0000-0000-0000-000000000001"
-                }
+                { "key": "targetType", "value": "RESTAURANT" },
+                { "key": "targetId", "value": "{{restaurantId}}" }
               ]
             }
           },
@@ -1088,7 +1431,52 @@
       ]
     },
     {
-      "name": "Drivers",
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Checkout (create payment intent)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": \"{{orderId}}\",\n  \"paymentMethodType\": \"card\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/checkout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "checkout"]
+            },
+            "description": "CUSTOMER only."
+          },
+          "response": []
+        },
+        {
+          "name": "Stripe webhook",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Stripe-Signature", "value": "{{stripeSignature}}", "description": "Required in production." }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/payments/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "payments", "webhook"]
+            },
+            "description": "No JWT. Send real Stripe event payload with valid Stripe-Signature for production use."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Drivers (Admin)",
       "item": [
         {
           "name": "Nearby drivers",
@@ -1096,33 +1484,16 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/drivers/nearby?lat=40.7128&lng=-74.006&radiusKm=5",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "drivers",
-                "nearby"
-              ],
+              "raw": "{{baseUrl}}/api/v1/drivers/nearby?lat=30.0444&lng=31.2357&radiusKm=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "drivers", "nearby"],
               "query": [
-                {
-                  "key": "lat",
-                  "value": "40.7128"
-                },
-                {
-                  "key": "lng",
-                  "value": "-74.006"
-                },
-                {
-                  "key": "radiusKm",
-                  "value": "5",
-                  "description": "Optional; server default from app config."
-                }
+                { "key": "lat", "value": "30.0444" },
+                { "key": "lng", "value": "31.2357" },
+                { "key": "radiusKm", "value": "5", "description": "Optional; server default from config." }
               ]
             },
-            "description": "`ADMIN` or `RESTAURANT_OWNER`."
+            "description": "ADMIN or RESTAURANT_OWNER."
           },
           "response": []
         }
@@ -1137,30 +1508,67 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/v1/admin/analytics/summary?from=2026-01-01&to=2026-01-31",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "analytics",
-                "summary"
-              ],
+              "raw": "{{baseUrl}}/api/v1/admin/analytics/summary?from=2026-01-01&to=2026-05-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "analytics", "summary"],
               "query": [
-                {
-                  "key": "from",
-                  "value": "2026-01-01",
-                  "description": "ISO date (yyyy-MM-dd)"
-                },
-                {
-                  "key": "to",
-                  "value": "2026-01-31"
-                }
+                { "key": "from", "value": "2026-01-01", "description": "yyyy-MM-dd" },
+                { "key": "to", "value": "2026-05-31" }
               ]
             },
-            "description": "`ADMIN` only (class-level `@PreAuthorize`)."
+            "description": "ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Create banner",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageUrl\": \"https://example.com/banner.jpg\",\n  \"title\": \"Ramadan Offers\",\n  \"subtitle\": \"Up to 50% off\",\n  \"ctaText\": \"Order Now\",\n  \"discountText\": \"خصم 50%\",\n  \"deepLink\": \"/restaurants?cuisineType=مصري\",\n  \"isActive\": true,\n  \"sortOrder\": 1,\n  \"expiresAt\": \"2026-06-01T00:00:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/banners",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "banners"]
+            },
+            "description": "ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Create shift",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2026-05-25\",\n  \"startTime\": \"08:00\",\n  \"endTime\": \"16:00\",\n  \"maxDrivers\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/shifts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "shifts"]
+            },
+            "description": "ADMIN only."
+          },
+          "response": []
+        },
+        {
+          "name": "Update document status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/admin/documents/:id/status?status=APPROVED",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "admin", "documents", ":id", "status"],
+              "query": [{ "key": "status", "value": "APPROVED", "description": "APPROVED | REJECTED" }],
+              "variable": [{ "key": "id", "value": "{{documentId}}" }]
+            },
+            "description": "ADMIN only."
           },
           "response": []
         }
@@ -1178,21 +1586,19 @@
     ]
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
-    },
-    {
-      "key": "accessToken",
-      "value": ""
-    },
-    {
-      "key": "refreshToken",
-      "value": ""
-    },
-    {
-      "key": "stripeSignature",
-      "value": ""
-    }
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "stripeSignature", "value": "" },
+    { "key": "restaurantId", "value": "00000000-0000-0000-0000-000000000001" },
+    { "key": "branchId", "value": "00000000-0000-0000-0000-000000000002" },
+    { "key": "categoryId", "value": "00000000-0000-0000-0000-000000000003" },
+    { "key": "menuItemId", "value": "00000000-0000-0000-0000-000000000004" },
+    { "key": "orderId", "value": "00000000-0000-0000-0000-000000000010" },
+    { "key": "deliveryId", "value": "00000000-0000-0000-0000-000000000020" },
+    { "key": "addressId", "value": "" },
+    { "key": "cartItemId", "value": "" },
+    { "key": "shiftId", "value": "" },
+    { "key": "documentId", "value": "" }
   ]
 }

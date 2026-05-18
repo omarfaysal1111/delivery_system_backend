@@ -4,12 +4,19 @@ WORKDIR /app
 
 COPY gradlew .
 COPY gradle/ gradle/
+
+# FIX 1: Ensure gradlew is executable to prevent "Permission Denied" errors
+RUN chmod +x ./gradlew 
+
 COPY build.gradle settings.gradle ./
 
-RUN ./gradlew dependencies --no-daemon 2>/dev/null || true
+# FIX 2: Restrict Gradle's memory footprint during dependency resolution
+RUN ./gradlew dependencies --no-daemon -Dorg.gradle.jvmargs="-Xmx256m" 2>/dev/null || true
 
 COPY src/ src/
-RUN ./gradlew bootJar --no-daemon -x test
+
+# FIX 3: Restrict Gradle's memory footprint during the application build
+RUN ./gradlew bootJar --no-daemon -x test -Dorg.gradle.jvmargs="-Xmx256m"
 
 # ---- Runtime Stage ----
 FROM eclipse-temurin:21-jre-alpine
